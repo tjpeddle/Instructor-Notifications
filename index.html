@@ -1,0 +1,927 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Interactive Video Tutorial</title><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"><style>
+        :root {
+            --primary: #2d5bd6;
+            --primary-dark: #1e3d8f;
+            --accent: #ff6b6b;
+            --success: #51cf66;
+            --info: #4dabf7;
+            --warning: #ffa94d;
+            --bg-dark: #0f1419;
+            --bg-mid: #1a1f2e;
+            --bg-light: #252b3d;
+            --text-white: #ffffff;
+            --text-gray: #a8b2c1;
+            --border: #2d3548;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-white);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--bg-mid);
+            border-bottom: 2px solid var(--primary);
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-gray);
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 15px 30px;
+            background: var(--bg-mid);
+            border: 2px solid var(--border);
+            color: var(--text-white);
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .mode-btn:hover {
+            border-color: var(--primary);
+            background: var(--bg-light);
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 4px 20px rgba(45, 91, 214, 0.4);
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg-mid);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .panel h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .video-source-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            color: var(--text-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .upload-area {
+            border: 3px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: var(--bg-light);
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--accent);
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .youtube-input {
+            display: none;
+        }
+
+        .youtube-input.active {
+            display: block;
+        }
+
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .video-clickable {
+            position: relative;
+            cursor: crosshair;
+        }
+
+        .video-clickable.selecting {
+            outline: 3px solid var(--accent);
+        }
+
+        .click-overlay {
+            background: rgba(255, 107, 107, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .click-overlay:hover {
+            background: rgba(255, 107, 107, 0.2);
+        }
+
+        video, iframe {
+            width: 100%;
+            display: block;
+            max-height: 400px;
+        }
+
+        iframe {
+            height: 400px;
+            border: none;
+            pointer-events: none;
+        }
+
+        .zoom-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .zoom-marker {
+            position: absolute;
+            border: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+            pointer-events: none;
+        }
+
+        .zoom-marker.box {
+            border-radius: 8px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+
+        .video-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .control-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .control-btn.selecting {
+            background: var(--accent);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .time-display {
+            background: var(--bg-dark);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: 'Courier Prime', monospace;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .type-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--bg-dark);
+            border-radius: 12px;
+        }
+
+        .type-toggle-btn {
+            flex: 1;
+            padding: 15px;
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            color: var(--text-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            text-align: center;
+        }
+
+        .type-toggle-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .type-toggle-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .type-toggle-btn.statement.active {
+            background: var(--info);
+            border-color: var(--info);
+        }
+
+        .type-toggle-btn.zoom.active {
+            background: var(--warning);
+            border-color: var(--warning);
+        }
+
+        .question-form {
+            background: var(--bg-light);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-gray);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="url"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            color: var(--text-white);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .answer-options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .answer-option {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .answer-option input[type="text"] {
+            flex: 1;
+        }
+
+        .answer-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .add-answer-btn {
+            padding: 8px 16px;
+            background: var(--bg-dark);
+            border: 2px dashed var(--border);
+            color: var(--text-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            margin-top: 10px;
+        }
+
+        .add-answer-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .zoom-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .zoom-level-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .zoom-level-btn {
+            flex: 1;
+            padding: 10px;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            color: var(--text-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .zoom-level-btn.active {
+            background: var(--warning);
+            border-color: var(--warning);
+            color: white;
+        }
+
+        .zoom-style-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .zoom-style-btn {
+            flex: 1;
+            padding: 10px;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            color: var(--text-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .zoom-style-btn.active {
+            background: var(--warning);
+            border-color: var(--warning);
+            color: white;
+        }
+
+        .zoom-preview {
+            background: var(--bg-dark);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .zoom-coordinates {
+            font-family: 'Courier Prime', monospace;
+            color: var(--warning);
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(45, 91, 214, 0.4);
+        }
+
+        .btn-primary.statement {
+            background: linear-gradient(135deg, var(--info), #3a8fd6);
+        }
+
+        .btn-primary.zoom {
+            background: linear-gradient(135deg, var(--warning), #e67700);
+        }
+
+        .items-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .item-card {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease;
+        }
+
+        .item-card.statement {
+            border-left-color: var(--info);
+        }
+
+        .item-card.zoom {
+            border-left-color: var(--warning);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .item-card:hover {
+            background: rgba(45, 91, 214, 0.1);
+        }
+
+        .item-timestamp {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-family: 'Courier Prime', monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .item-card.statement .item-timestamp {
+            background: var(--info);
+        }
+
+        .item-card.zoom .item-timestamp {
+            background: var(--warning);
+        }
+
+        .item-type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-left: 10px;
+        }
+
+        .item-type-badge.question {
+            background: var(--primary);
+            color: white;
+        }
+
+        .item-type-badge.statement {
+            background: var(--info);
+            color: white;
+        }
+
+        .item-type-badge.zoom {
+            background: var(--warning);
+            color: white;
+        }
+
+        .item-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question-answers {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .answer-item {
+            padding: 8px 12px;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .answer-item.correct {
+            border: 2px solid var(--success);
+            background: rgba(81, 207, 102, 0.1);
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-edit {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-delete {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-small:hover {
+            transform: translateY(-2px);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .overlay.active {
+            display: flex;
+        }
+
+        .overlay-content {
+            background: var(--bg-mid);
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 90vw;
+            max-height: 90vh;
+            width: 800px;
+            border: 2px solid var(--primary);
+            animation: scaleIn 0.3s ease;
+            overflow: auto;
+        }
+
+        .overlay-content.statement {
+            border-color: var(--info);
+        }
+
+        .overlay-content.zoom {
+            border-color: var(--warning);
+            max-width: 95vw;
+            width: 1200px;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .overlay-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: var(--primary);
+        }
+
+        .overlay-content.statement h3 {
+            color: var(--info);
+        }
+
+        .overlay-content.zoom h3 {
+            color: var(--warning);
+        }
+
+        .statement-text {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: var(--bg-light);
+            border-radius: 12px;
+            border-left: 4px solid var(--info);
+        }
+
+        .zoom-display {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .zoom-display video,
+        .zoom-display iframe {
+            width: 100%;
+            max-height: 70vh;
+            border-radius: 12px;
+        }
+
+        .zoom-highlight {
+            position: absolute;
+            border: 4px solid var(--warning);
+            box-shadow: 0 0 20px rgba(255, 169, 77, 0.6);
+            animation: zoomPulse 2s infinite;
+            pointer-events: none;
+        }
+
+        .zoom-highlight.circle {
+            border-radius: 50%;
+        }
+
+        .zoom-highlight.box {
+            border-radius: 8px;
+        }
+
+        @keyframes zoomPulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(255, 169, 77, 0.6);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 0 40px rgba(255, 169, 77, 0.9);
+            }
+        }
+
+        .zoom-text {
+            font-size: 1.2rem;
+            padding: 20px;
+            background: var(--bg-light);
+            border-radius: 12px;
+            border-left: 4px solid var(--warning);
+            margin-bottom: 25px;
+        }
+
+        .quiz-answers {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .quiz-answer {
+            padding: 15px 20px;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .quiz-answer:hover {
+            border-color: var(--primary);
+            background: var(--bg-light);
+        }
+
+        .quiz-answer.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .quiz-answer.correct {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+
+        .quiz-answer.incorrect {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+        }
+
+        .quiz-feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: rgba(81, 207, 102, 0.2);
+            border: 2px solid var(--success);
+            color: var(--success);
+        }
+
+        .quiz-feedback.incorrect {
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-gray);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            display: none;
+            animation: slideInRight 0.3s ease;
+            z-index: 2000;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        .export-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: var(--bg-light);
+            border-radius: 12px;
+        }
+
+        .export-section h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .export-buttons {
+            display: grid;
+            gap: 10px;
+        }
+
+        .info-box {
+            background: rgba(77, 171, 247, 0.1);
+            border-left: 4px solid var(--info);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box.warning {
+            background: rgba(255, 169, 77, 0.1);
+            border-left-color: var(--warning);
+        }
+
+        .info-box h4 {
+            color: var(--info);
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .info-box.warning h4 {
+            color: var(--warning);
+        }
+
+        .info-box p {
+            color: var(--text-gray);
+            font-size: 0.95rem;
+        }
+    </style></head><body><header><div class="container"><h1>🎬 Interactive Video Tutorial</h1><p class="subtitle">Watch and learn with interactive questions, notes, and zoom highlights!</p></div></header><div class="container"><div class="panel"><div class="video-container"><div id="videoContainer"><iframe id="youtubePlayer" src="https://www.youtube.com/embed/lw4y1sr9GRQ?enablejsapi=1" allowfullscreen style="width:100%;height:500px;border:none;"></iframe></div></div><div class="video-controls" style="margin-top:20px;"><button class="control-btn" onclick="togglePlay()">▶️ Play/Pause</button><div class="time-display" id="currentTime">00:00</div></div></div></div><div class="overlay" id="questionOverlay"><div class="overlay-content"><h3 id="overlayQuestionText"></h3><div class="quiz-feedback" id="quizFeedback"></div><div class="quiz-answers" id="quizAnswers"></div><button class="btn-primary" onclick="continueVideo()">Continue Video</button></div></div><div class="overlay" id="statementOverlay"><div class="overlay-content statement"><h3>💬 Note</h3><div class="statement-text" id="overlayStatementText"></div><button class="btn-primary statement" onclick="continueVideo()">Continue Video</button></div></div><div class="overlay" id="zoomOverlay"><div class="overlay-content zoom"><h3>🔍 Focus Point</h3><div class="zoom-text" id="overlayZoomText"></div><div class="zoom-display"><div id="zoomVideoContainer"></div><div id="zoomHighlight"></div></div><button class="btn-primary zoom" onclick="continueVideo()">Continue Video</button></div></div><script>const items=[{"type":"statement","statementType":"custom","customTitle":"Instructor Notifications","showIcon":"no","size":"large","timestamp":2,"text":"Directions: Please answer each question and proceed to the end of the video.  "}];const youtubeVideoId="lw4y1sr9GRQ";let youtubePlayer=null;let itemsShown=new Set();const tag=document.createElement("script");tag.src="https://www.youtube.com/iframe_api";document.head.appendChild(tag);function onYouTubeIframeAPIReady(){youtubePlayer=new YT.Player("youtubePlayer",{events:{onReady:()=>{setInterval(()=>{if(youtubePlayer&&youtubePlayer.getCurrentTime){const time=youtubePlayer.getCurrentTime();document.getElementById("currentTime").textContent=formatTime(time);checkForItems(time)}},100)}}})};function formatTime(s){const m=Math.floor(s/60);const sec=Math.floor(s%60);return String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0")};function togglePlay(){if(youtubePlayer){const state=youtubePlayer.getPlayerState();if(state===1)youtubePlayer.pauseVideo();else youtubePlayer.playVideo()}};function checkForItems(currentTime){items.forEach((item,index)=>{if(!itemsShown.has(index)&&currentTime>=item.timestamp&&currentTime<item.timestamp+1){if(item.type==="question"){showQuestion(item,index)}else if(item.type==="statement"){showStatement(item,index)}else{showZoom(item,index)}}})};function showQuestion(item,index){itemsShown.add(index);if(youtubePlayer)youtubePlayer.pauseVideo();document.getElementById("overlayQuestionText").textContent=item.question;document.getElementById("quizFeedback").className="quiz-feedback";const ac=document.getElementById("quizAnswers");ac.innerHTML=item.answers.map((a,i)=>"<div class=\"quiz-answer\" onclick=\"selectAnswer("+i+","+item.correctIndex+")\">"+a+"</div>").join("");document.getElementById("questionOverlay").classList.add("active")};function showStatement(item,index){itemsShown.add(index);if(youtubePlayer)youtubePlayer.pauseVideo();document.getElementById("overlayStatementText").textContent=item.text;document.getElementById("statementOverlay").classList.add("active")};function showZoom(item,index){itemsShown.add(index);if(youtubePlayer)youtubePlayer.pauseVideo();const txt=document.getElementById("overlayZoomText");if(item.text){txt.textContent=item.text;txt.style.display="block"}else{txt.style.display="none"}const container=document.getElementById("zoomVideoContainer");const highlight=document.getElementById("zoomHighlight");container.innerHTML="<iframe src=\"https://www.youtube.com/embed/"+youtubeVideoId+"?start="+Math.floor(item.timestamp)+"\" allowfullscreen style=\"width:100%;height:500px;border:none;\"></iframe>";const size=100/item.zoomLevel;highlight.className="zoom-highlight "+item.zoomStyle;highlight.style.left=item.zoomPoint.x+"%";highlight.style.top=item.zoomPoint.y+"%";highlight.style.width=size+"%";highlight.style.height=size+"%";highlight.style.marginLeft="-"+(size/2)+"%";highlight.style.marginTop="-"+(size/2)+"%";document.getElementById("zoomOverlay").classList.add("active")};function selectAnswer(s,c){const ans=document.querySelectorAll(".quiz-answer");const fb=document.getElementById("quizFeedback");ans.forEach((a,i)=>{a.style.pointerEvents="none";if(i===c)a.classList.add("correct");else if(i===s)a.classList.add("incorrect")});if(s===c){fb.textContent="🎉 Correct! Great job!";fb.className="quiz-feedback correct show"}else{fb.textContent="❌ Incorrect. The correct answer is highlighted.";fb.className="quiz-feedback incorrect show"}};function continueVideo(){document.getElementById("questionOverlay").classList.remove("active");document.getElementById("statementOverlay").classList.remove("active");document.getElementById("zoomOverlay").classList.remove("active");if(youtubePlayer)youtubePlayer.playVideo()}</script></body></html>
