@@ -989,6 +989,9 @@
                     <button onclick="skipBackward()" style="background: #9678D3; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 600;">
                         ⏪ -10s
                     </button>
+                    <button onclick="restartVideo()" style="background: #E87D0D; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 600;">
+                        🔄 Start Over
+                    </button>
                 </div>
             </div>
         </div>
@@ -1023,13 +1026,12 @@
                 </div>
                 <p style="color: #555; font-size: 1rem; line-height: 1.6; margin: 20px 0;">You have completed this short tutorial. If you have additional questions, please reach out to OARS at 336-841-9026. Have a great year!</p>
                 <p style="color: #888; font-size: 0.95rem; margin: 20px 0;">Completion Date: <span id="certificateDate"></span></p>
-                <button onclick="restartVideo()" style="background: #E87D0D; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: 600;">🔄 Restart Video</button>
-                <button onclick="closeCertificate()" style="background: transparent; color: #888; border: none; padding: 12px 24px; margin-top: 15px; font-size: 0.95rem; cursor: pointer; display: block; margin-left: auto; margin-right: auto;">Close</button>
+                <button onclick="closeCertificate()" style="background: #330072; color: white; border: none; padding: 15px 30px; margin-top: 20px; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: 600;">Close</button>
             </div>
         </div>
     </div>
     <script>
-        const items = [{"type":"statement","statementType":"custom","customTitle":"WELCOME","showIcon":"no","size":"large","timestamp":0,"text":"This is an interactive instructional video on how to submit your Instructor Notifications.  \nVideo Length (2:29 minutes)"},{"type":"question","timestamp":32,"question":"You must send your Instructor Notifications at the beginning of each semester. ","answers":["True ","False"],"correctIndex":0},{"type":"question","timestamp":97,"question":"I should select the Review the Renewal Button to populate my approved Accommodations for each class. ","answers":["True","False"],"correctIndex":0},{"type":"question","timestamp":135,"question":"Once I review each class, I select Submit.","answers":["True","False"],"correctIndex":0}];
+        const items = [{"type":"statement","statementType":"custom","customTitle":"WELCOME","showIcon":"no","size":"large","timestamp":0,"text":"This is an interactive instructional video on how to submit your Instructor Notifications.  \nVideo Length (2:29 minutes)"},{"type":"question","timestamp":32,"question":"You must send your Instructor Notifications at the beginning of each semester. ","answers":["True ","False"],"correctIndex":0},{"type":"question","timestamp":97,"question":"I should select the Review the Renewal Button to populate my approved Accommodations for each class. ","answers":["True","False"],"correctIndex":0},{"type":"question","timestamp":135,"question":"Once I review each class, I select Submit, which sends my Instructor Notifications.","answers":["True","False"],"correctIndex":0}];
         const youtubeVideoId = "Jovbstdu4UE";
         let youtubePlayer = null;
         let itemsShown = new Set();
